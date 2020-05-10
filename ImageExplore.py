@@ -11,31 +11,38 @@ G_RES_MULTIPLER = 0.2
 SIG_THRESH_MULT = 0.3
 
 
-def gradient_correction(img):
-    # defining variables
-    mu, sigma = norm.fit(img.ravel())
-
-    # Shrink and apply median blur to make a gradient image (g_img)
-    g_img = cv2.resize(img, None, fx=G_RES_MULTIPLER, fy=G_RES_MULTIPLER, interpolation=cv2.INTER_NEAREST)
+def gradient_correction(backImg, dataImg):
+    # Shrink and apply median blur and expand to make a gradient image (g_img)
+    g_img = cv2.resize(backImg, None, fx=G_RES_MULTIPLER, fy=G_RES_MULTIPLER, interpolation=cv2.INTER_NEAREST)
     g_img = cv2.medianBlur(g_img, 7)
     g_img = cv2.subtract(g_img, 4*sigma)
-
-    print("shrunk size:", g_img.shape)
     g_img = cv2.resize(src = g_img, dsize = (img.shape[1], img.shape[0]), interpolation=cv2.INTER_AREA)
-    print("reexpaneded size:", g_img.shape)
 
-    img = cv2.subtract(img, g_img)
-    # only care about the first two values, height and width
-    print('in gradient correction: resized image')
+    #subtract the gradient image from the data channel
+    img = cv2.subtract(dataImg, g_img)
 
-    cv2.imshow('subtracted image', img)
-
+    #get centering statistics to identify the cells
     mode = stats.mode(img.ravel())
     mu, sigma = norm.fit(img.ravel())
 
-    threshLevel = mode - 0.5*sigma
+    #threshold image
+    threshLevel = mode - 0.75*sigma
     ___, thresh_img = cv2.threshold(img, threshLevel, 255, cv2.THRESH_BINARY)
-    cv2.imshow('thresholded image', thresh_img)
+
+    noiseKern = np.ones((2,2), np.uint8)
+    eroded = cv2.dilate(thresh_img, noiseKern)
+
+    cellKern = np.ones((3,3), np.uint8)
+    dilated = cv2.erode(eroded, noiseKern)
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+
+    # First dialate, then erode (morph close), then dialate a whole bunch
+    closed = cv2.morphologyEx(thresh_img, cv2.MORPH_CLOSE, kernel)
+
+
+
+
+    cv2.imshow('thresholded image', closed)
     # n, bins, patches = plt.hist(img.ravel(), 256, [0, 255], normed=True)
     # normalCurve = norm.pdf(bins, mode, sigma)
     # plt.plot(bins, normalCurve, 'r--', linewidth=2)
@@ -71,7 +78,7 @@ def cellFinder(file: chr):
     print(g.shape)
     g = gradient_correction(g)
     # cv2.imshow('gradient corrected image', g)
-    # cv2.waitKey()
+    cv2.waitKey()
 
 
 def bGalFinder(file: chr):
