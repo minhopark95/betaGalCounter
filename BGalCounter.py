@@ -4,21 +4,20 @@ from scipy.stats import norm
 import statistics as stats
 from matplotlib import pyplot as plt
 import os
-import sys
 import argparse
 
-# # Global variables to count Cells
+# Global variables to count Cells
 CELL_SD_THRESHOLD: float
 G_RES_MULTIPLIER: float
 CONTRAST_MULTIPLIER: int
 CLEANUP_LOOPS: int
 MIN_CELL_SIZE: int
-#
-# # Global variables to count Beta Gal Cells
+
+# Global variables to count Beta Gal Cells
 BLUE_SD_THRESHOLD: int
 MIN_BGAL_SIZE: int
-#
-# # Global variable to show Testing Plots
+
+# Global variable to show Testing Plots
 TESTING: bool
 
 
@@ -50,8 +49,9 @@ def identifyCells(img):
 
     # do an erode followed by dialation x2
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+    closed = thresh_img
     for i in range(CLEANUP_LOOPS):
-        closed = cv2.morphologyEx(thresh_img, cv2.MORPH_CLOSE, kernel)
+        closed = cv2.morphologyEx(closed, cv2.MORPH_CLOSE, kernel)
 
     # Invert the image and find contours
     closed = cv2.bitwise_not(closed)
@@ -90,10 +90,11 @@ def identifyCells(img):
 
 
 def cellFinder(file: chr):
+    # open image and split into channels
     img = cv2.imread(file)
-
     r, g, b = cv2.split(img)
 
+    # increase contrast, then find the cells
     r = increaseContrast(img=r)
     mask, nCells, cellContours = identifyCells(img=r)
 
@@ -140,16 +141,16 @@ def bGalFinder(file: chr, mask):
         plt.title('All potential bGal positive - no filtering')
         plt.show()
 
+    # remove the small noisy Beta Gal False Positives
     largeContours = []
     for i in range(len(contours)):
         area = (cv2.contourArea(contours[i]))
         if area > MIN_BGAL_SIZE:
             largeContours.append(contours[i])
 
-    # Clean up memory because there are leaks
+    # clean up and return
     del img, mask, bDiff, bDiffErode, bDiffDilated, bDiffThresh
     del r, g, b, mu, sigma, thresh_val, kernErode, kernDilate, contours, hierarchy
-
     return len(largeContours), largeContours
 
 
@@ -205,34 +206,36 @@ def parseArguments():
                         help='The number of SD below mean to threshold for b gal counting')
     parser.add_argument('-M', '--minBGal', dest='minBGalSize', default=20,
                         help='Minimum Beta Gall color to count')
+    parser.add_argument('-i', '--InputDir', dest='inputDir', default='.',
+                        help='Directory to Start Parsing images from, default to current directory')
 
     # Set up the required argument
     requiredNamed = parser.add_argument_group('required named argument')
     requiredNamed.add_argument('-n', '--name', dest='name', help='Sample Name For Output File', required=True)
 
-    # Get the arguments and set them
+    # Get the arguments and set them - look I ain't proud of this but I need these globals
     args = parser.parse_args()
 
     # Global variable to show Testing Plots
-    global TESTING;
+    global TESTING
     TESTING = args.test
 
     # Global Variables to Count Cells
-    global CELL_SD_THRESHOLD;
+    global CELL_SD_THRESHOLD
     CELL_SD_THRESHOLD = args.cellSDMulti
-    global G_RES_MULTIPLIER;
+    global G_RES_MULTIPLIER
     G_RES_MULTIPLIER = args.gResMulti
-    global CONTRAST_MULTIPLIER;
+    global CONTRAST_MULTIPLIER
     CONTRAST_MULTIPLIER = args.contrastMulti
-    global CLEANUP_LOOPS;
+    global CLEANUP_LOOPS
     CLEANUP_LOOPS = args.loops
-    global MIN_CELL_SIZE;
+    global MIN_CELL_SIZE
     MIN_CELL_SIZE = args.minCellSize
 
     # Global Variables to Count B Gal Spots
-    global BLUE_SD_THRESHOLD;
+    global BLUE_SD_THRESHOLD
     BLUE_SD_THRESHOLD = args.bgalSDMulti
-    global MIN_BGAL_SIZE;
+    global MIN_BGAL_SIZE
     MIN_BGAL_SIZE = args.minBGalSize
 
     return args
@@ -242,7 +245,9 @@ def main():
     # Get arguments and set global variables
     args = parseArguments()
 
-    root = os.path.abspath('.')
+    targetDir = args.inputDir
+    root = os.path.abspath(targetDir)
+    print(root)
     containsImg = False
 
     # Make the config file and save the settings
