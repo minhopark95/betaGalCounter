@@ -172,7 +172,7 @@ def analyzeFolder(root, output):
             nBGalCells, bGalContours = bGalFinder(file=fullF, mask=maskImg)
 
             # Write out the number of cells
-            output.write(f + ',' + chr(nCells) + ',' + chr(nBGalCells))
+            output.write(f + ',' + str(nCells) + ',' + str(nBGalCells) + '\n')
 
             # Trace the outlines on the QC Image and save it
             QCImg = cv2.imread('./Test Images/' + f)
@@ -203,7 +203,7 @@ def parseArguments():
 
     parser.add_argument('-b', '--BGalSDMulti', dest='bgalSDMulti', default=3,
                         help='The number of SD below mean to threshold for b gal counting')
-    parser.add_argument('-M', '--minBGal', dest='minBGalSize', default=10,
+    parser.add_argument('-M', '--minBGal', dest='minBGalSize', default=20,
                         help='Minimum Beta Gall color to count')
 
     # Set up the required argument
@@ -257,7 +257,7 @@ def main():
     # Make output file and start writing results out
     outputFile = os.path.join(root, args.name + '_Output.csv')
     output = open(outputFile, "w+")
-    output.write('File Name,Number of Cells,Number of B Gal Positive')
+    output.write('File Name,Number of Cells,Number of B Gal Positive\n')
 
     # Iterate through all subdirectories and write out
     for dirName, subDirList, fileList in os.walk(root):
