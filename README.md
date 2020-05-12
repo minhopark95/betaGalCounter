@@ -37,6 +37,7 @@ will preserve large cells.
 *-t --testing:* Flag to display testing images and cell/beta gal distribution histograms.
 
 # Required packages
+**Python 3.7.5**
 - scipy v1.4.1
 - matplotlib v3.1.3
 - numpy v1.18.1
