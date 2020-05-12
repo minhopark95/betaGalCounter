@@ -1,8 +1,3 @@
-##Beta Galectin Stained Cell Counter
-This program counts cells from microscope images and then identifies the beta gal positive ones (blue).
-The image set it was created for has a significant red cast, so the program primarily uses the red and
-the blue channel    
-
 #Order of operations
 Detect Cells
 1) Shrink the red channel (nearest area interpolation) to get the background gradient of the image
