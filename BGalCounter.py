@@ -1,10 +1,12 @@
-import cv2
-import numpy as np
+from datetime import date
 from scipy.stats import norm
-import statistics as stats
 from matplotlib import pyplot as plt
+import numpy as np
+import statistics as stats
+import cv2
 import os
 import argparse
+import re
 
 # Global variables to count Cells
 CELL_SD_THRESHOLD: float
@@ -176,10 +178,17 @@ def analyzeFolder(root, output):
             output.write(f + ',' + str(nCells) + ',' + str(nBGalCells) + '\n')
 
             # Trace the outlines on the QC Image and save it
-            QCImg = cv2.imread('./Test Images/' + f)
+            QCImg = cv2.imread(fullF)
             cv2.drawContours(QCImg, cellContours, -1, (255, 255, 255), 1)
             cv2.drawContours(QCImg, bGalContours, -1, (0, 255, 255), 1)
+
+            if TESTING:
+                cv2.imshow('QC Image', QCImg)
+                cv2.waitKey()
+
+            # Make the QC File a jpg and save it
             QCFile = os.path.join(QCPath, 'QC_' + f)
+            QCFile = re.sub('(.*)\\.tif', '\\1.jpeg', QCFile)
             cv2.imwrite(QCFile, QCImg)
 
 
@@ -190,53 +199,46 @@ def parseArguments():
     parser.add_argument('-t', '--testing', dest="test", action='store_true', default=False,
                         help='Testing mode will display the thresholded image, counted colonies, and final QC image '
                              'for each sample')
-    parser.add_argument('-c', '--CellSDMulti', dest='cellSDMulti', default=0.75,
+    parser.add_argument('-c', '--CellSDMulti', dest='cellSDMulti', default=0.75, type=float,
                         help='The number of SD below mean to threshold for cell counting')
-    parser.add_argument('-g', '--GResMulti', dest='gResMulti', default=0.2,
+    parser.add_argument('-g', '--GResMulti', dest='gResMulti', default=0.2, type=float,
                         help='Multiplier to determine how small the gradient image should be\nSmaller: avoids '
                              'normalizing large cells | Larger: better matches complex color casts')
-    parser.add_argument('-C', '--ContrastMulti', dest='contrastMulti', default=4,
+    parser.add_argument('-C', '--ContrastMulti', dest='contrastMulti', default=4, type=float,
                         help='Multiplier to lower the gradient image to increase contrast')
-    parser.add_argument('-l', '--Loops', dest='loops', default=1,
+    parser.add_argument('-l', '--Loops', dest='loops', default=1, type=int,
                         help='Number of Erode, Dilate cycles to clean up the cell detection')
-    parser.add_argument('-m', '--minCell', dest='minCellSize', default=40,
+    parser.add_argument('-m', '--minCell', dest='minCellSize', default=40, type=int,
                         help='Minimum Cell Size to Count')
 
-    parser.add_argument('-b', '--BGalSDMulti', dest='bgalSDMulti', default=3,
+    parser.add_argument('-b', '--BGalSDMulti', dest='bgalSDMulti', default=3, type=float,
                         help='The number of SD below mean to threshold for b gal counting')
-    parser.add_argument('-M', '--minBGal', dest='minBGalSize', default=20,
+    parser.add_argument('-M', '--minBGal', dest='minBGalSize', default=20, type=int,
                         help='Minimum Beta Gall color to count')
-    parser.add_argument('-i', '--InputDir', dest='inputDir', default='.',
+    parser.add_argument('-i', '--InputDir', dest='inputDir', default='.', type=str,
                         help='Directory to Start Parsing images from, default to current directory')
 
     # Set up the required argument
     requiredNamed = parser.add_argument_group('required named argument')
-    requiredNamed.add_argument('-n', '--name', dest='name', help='Sample Name For Output File', required=True)
+    requiredNamed.add_argument('-n', '--name', dest='name', required=True, type=str,
+                               help='Sample Name For Output File')
 
     # Get the arguments and set them - look I ain't proud of this but I need these globals
     args = parser.parse_args()
 
     # Global variable to show Testing Plots
-    global TESTING
-    TESTING = args.test
+    global TESTING; TESTING = args.test
 
     # Global Variables to Count Cells
-    global CELL_SD_THRESHOLD
-    CELL_SD_THRESHOLD = args.cellSDMulti
-    global G_RES_MULTIPLIER
-    G_RES_MULTIPLIER = args.gResMulti
-    global CONTRAST_MULTIPLIER
-    CONTRAST_MULTIPLIER = args.contrastMulti
-    global CLEANUP_LOOPS
-    CLEANUP_LOOPS = args.loops
-    global MIN_CELL_SIZE
-    MIN_CELL_SIZE = args.minCellSize
+    global CELL_SD_THRESHOLD; CELL_SD_THRESHOLD = args.cellSDMulti
+    global G_RES_MULTIPLIER; G_RES_MULTIPLIER = args.gResMulti
+    global CONTRAST_MULTIPLIER; CONTRAST_MULTIPLIER = args.contrastMulti
+    global CLEANUP_LOOPS; CLEANUP_LOOPS = args.loops
+    global MIN_CELL_SIZE; MIN_CELL_SIZE = args.minCellSize
 
     # Global Variables to Count B Gal Spots
-    global BLUE_SD_THRESHOLD
-    BLUE_SD_THRESHOLD = args.bgalSDMulti
-    global MIN_BGAL_SIZE
-    MIN_BGAL_SIZE = args.minBGalSize
+    global BLUE_SD_THRESHOLD; BLUE_SD_THRESHOLD = args.bgalSDMulti
+    global MIN_BGAL_SIZE; MIN_BGAL_SIZE = args.minBGalSize
 
     return args
 
@@ -247,11 +249,10 @@ def main():
 
     targetDir = args.inputDir
     root = os.path.abspath(targetDir)
-    print(root)
     containsImg = False
 
     # Make the config file and save the settings
-    configFile = os.path.join(root, args.name + '_Config.csv')
+    configFile = os.path.join(root, args.name + '_' + date.today() + '_Config.csv')
     config = open(configFile, 'w+')
     config.write('CELL_SD_THRESHOLD,' + str(CELL_SD_THRESHOLD) + '\nG_RES_MULTIPLIER,' + str(G_RES_MULTIPLIER) +
                  '\nCONTRAST_MULTIPLIER,' + str(CONTRAST_MULTIPLIER) + '\nCLEANUP_LOOPS,' + str(CLEANUP_LOOPS) +
@@ -260,7 +261,7 @@ def main():
     config.close()
 
     # Make output file and start writing results out
-    outputFile = os.path.join(root, args.name + '_Output.csv')
+    outputFile = os.path.join(root, args.name + '_' + date.today() + '_Output.csv')
     output = open(outputFile, "w+")
     output.write('File Name,Number of Cells,Number of B Gal Positive\n')
 
