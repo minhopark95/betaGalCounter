@@ -1,4 +1,4 @@
-#Order of operations
+#Order of operations  
 Detect Cells
 1) Shrink the red channel (nearest area interpolation) to get the background gradient of the image
 2) Dim the image slightly and subtract it from the original red channel to increase contrast
@@ -30,7 +30,7 @@ will preserve large cells.
 
 Optional Parameters: Beta Gal Counting  
 -b --BGalSDMulti: multiplier for beta gal threshold - higher values are stricter.  
--M --minBGal: minim beta gal size (square pixels) to be considered true beta gal stain.
+-M --minBGal: minimum beta gal size (square pixels) to be considered true beta gal stain.
 
 Optional Prarameters: Generic Parameters  
 -i --InputDir: Directory to look for images. Defaults to current directory.  
