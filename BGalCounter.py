@@ -28,7 +28,7 @@ def increaseContrast(img):
     mu, sigma = norm.fit(img.ravel())
 
     # Shrink and apply median blur and expand to make a gradient image (g_img)
-    g_img = cv2.resize(img, None, fx=G_RES_MULTIPLIER, fy=G_RES_MULTIPLIER, interpolation=cv2.INTER_NEAREST)
+    g_img = cv2.resize(img, None, fx=G_RES_MULTIPLIER, fy=G_RES_MULTIPLIER, interpolation=cv2.INTER_AREA)
     g_img = cv2.medianBlur(g_img, 7)
     g_img = cv2.subtract(g_img, CONTRAST_MULTIPLIER * sigma)
     g_img = cv2.resize(src=g_img, dsize=(img.shape[1], img.shape[0]), interpolation=cv2.INTER_AREA)
