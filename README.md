@@ -25,7 +25,7 @@ Optional Parameters: Cell Counting
 -C --ContrastMulti: Determines the magnitude of background image dimming.  
 -g --GResMulti: Determines how small the gradient image is - large numbers matches subtle gradients while small ones
 will preserve large cells.  
--l --loops: number of times to repeat erosion and dilation for cleanup.
+-l --loops: number of times to repeat erosion and dilation for cleanup.  
 -m --minCell: minimum cell size (square pixels) to be considered a cell.
 
 Optional Parameters: Beta Gal Counting  
