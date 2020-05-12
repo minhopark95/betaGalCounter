@@ -18,21 +18,21 @@ fill in any gaps within beta gal spots
     
 # Parameters  
 **Required Parameters**  
-*-n --name:* sample name for the output file
+*-n --name:* Sample name for the output file
 
 **Optional Parameters: Cell Counting**  
-*-c --CellSDMulti:* multiplier for cell counting threshold - higher values are stricter.  
+*-c --CellSDMulti:* Multiplier for cell counting threshold - higher values are stricter.  
 *-C --ContrastMulti:* Determines the magnitude of background image dimming.  
 *-g --GResMulti:* Determines how small the gradient image is - large numbers matches subtle gradients while small ones
 will preserve large cells.  
-*-l --loops:* number of times to repeat erosion and dilation for cleanup.  
-*-m --minCell:* minimum cell size (square pixels) to be considered a cell.
+*-l --loops:* Number of times to repeat erosion and dilation for cleanup.  
+*-m --minCell:* Minimum cell size (square pixels) to be considered a cell.
 
 **Optional Parameters: Beta Gal Counting**  
-*-b --BGalSDMulti:* multiplier for beta gal threshold - higher values are stricter.  
-*-M --minBGal:* minimum beta gal size (square pixels) to be considered true beta gal stain.
+*-b --BGalSDMulti:* Multiplier for beta gal threshold - higher values are stricter.  
+*-M --minBGal:* Minimum beta gal size (square pixels) to be considered true beta gal stain.
 
-**Optional Prarameters: Generic Parameters**  
+**Optional Parameters: Generic Parameters**  
 *-i --InputDir:* Directory to look for images. Defaults to current directory.  
 *-t --testing:* Flag to display testing images and cell/beta gal distribution histograms.
 
