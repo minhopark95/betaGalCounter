@@ -16,7 +16,7 @@ Detect Beta Gal Expression
 fill in any gaps within beta gal spots
 5) Find Contours, and filter out any remaining noise contours
     
-##Parameters
+#Parameters  
 Required Parameters:  
 -n --name: sample name for the output file
 
