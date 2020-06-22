@@ -252,7 +252,7 @@ def main():
     containsImg = False
 
     # Make the config file and save the settings
-    configFile = os.path.join(root, args.name + '_' + date.today() + '_Config.csv')
+    configFile = os.path.join(root, args.name + '_' + str(date.today()) + '_Config.csv')
     config = open(configFile, 'w+')
     config.write('CELL_SD_THRESHOLD,' + str(CELL_SD_THRESHOLD) + '\nG_RES_MULTIPLIER,' + str(G_RES_MULTIPLIER) +
                  '\nCONTRAST_MULTIPLIER,' + str(CONTRAST_MULTIPLIER) + '\nCLEANUP_LOOPS,' + str(CLEANUP_LOOPS) +
@@ -261,7 +261,7 @@ def main():
     config.close()
 
     # Make output file and start writing results out
-    outputFile = os.path.join(root, args.name + '_' + date.today() + '_Output.csv')
+    outputFile = os.path.join(root, args.name + '_' + str(date.today()) + '_Output.csv')
     output = open(outputFile, "w+")
     output.write('File Name,Number of Cells,Number of B Gal Positive\n')
 
