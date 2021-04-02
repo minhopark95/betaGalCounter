@@ -15,7 +15,7 @@
 4) erode with a small kernel to remove spot noise, and dilate with a larger one to
 fill in any gaps within beta gal spots
 5) Find Contours, and filter out any remaining noise contours
-    
+
 # Parameters  
 **Required Parameters**  
 *-n --name:* Sample name for the output file
@@ -43,3 +43,6 @@ will preserve large cells.
 - numpy v1.18.1
 - opencv v3.4.2
 - argparse v1.1
+
+# Performance
+![Input Image](imgs/KD231-1.jpg "Input Image") ![QC Image](imgs/QC_KD231-1.jpg "QC Image")
