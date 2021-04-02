@@ -2,5 +2,5 @@
 *.tiff
 *.tif
 *.csv
-./.idea*
+.idea/*
 Test Images*
